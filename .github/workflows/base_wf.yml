@@ -20,11 +20,11 @@ jobs:
   awsAssumeRole:
     runs-on: ubuntu-latest
     outputs:
-      aws-access-key-id: ${{ steps.creds.outputs.aws-access-key-id }}
-      aws-secret-access-key: ${{ steps.creds.outputs.aws-secret-access-key }}
-      aws-session-token: ${{ steps.creds.outputs.aws-session-token }}
+      aws-access-key-id: ${{ steps.sts.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ steps.sts.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ steps.sts.outputs.aws-session-token }}
       test-output: ${{ steps.sts.outputs.test }}
-
+      AWS_SECRET_ACCESS_KEY
     steps:
     #   - name: Git clone the repository
     #     uses: actions/checkout@v3
@@ -43,6 +43,7 @@ jobs:
         run: |
           aws sts get-caller-identity
           echo "test=hello" >> "$GITHUB_OUTPUT"
+          echo "aws-access-key-id=$AWS_ACCESS_KEY_ID" >> "$GITHUB_OUTPUT"
       - name: list items in bucket
         env:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
@@ -64,12 +65,14 @@ jobs:
           terraform_version: "1.5.7"
 
       - name: terraform-plan
+        with:
+          AWS_ACCESS_KEY_ID: ${{ needs.awsAssumeRole.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ needs.awsAssumeRole.outputs.aws-secret-access-key }}
         env:
             AWS_REGION:  ${{ env.AWS_REGION }}
-            AWS_ACCESS_KEY_ID: ${{ needs.awsAssumeRole.outputs.aws-access-key-id }}
-            AWS_SECRET_ACCESS_KEY: ${{ needs.awsAssumeRole.outputs.aws-secret-access-key }}
             TEST: ${{ needs.aws-assume-role.outputs.test-output }}
         run: |
           echo "hello from terraform-plan"
           echo "$AWS_REGION $AWS_ACCESS_KEY_ID $TEST"
+          env
           aws s3 ls "$S3_BUCKET"
