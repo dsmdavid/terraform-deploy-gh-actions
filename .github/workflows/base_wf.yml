@@ -24,7 +24,7 @@ jobs:
       aws-secret-access-key: ${{ steps.sts.outputs.aws-secret-access-key }}
       aws-session-token: ${{ steps.sts.outputs.aws-session-token }}
       test-output: ${{ steps.sts.outputs.test }}
-      AWS_SECRET_ACCESS_KEY
+
     steps:
     #   - name: Git clone the repository
     #     uses: actions/checkout@v3
