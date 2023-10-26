@@ -17,7 +17,7 @@ permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
 jobs:
-  aws-assume-role:
+  awsAssumeRole:
     runs-on: ubuntu-latest
     outputs:
       aws-access-key-id: ${{ steps.creds.outputs.aws-access-key-id }}
@@ -48,6 +48,8 @@ jobs:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
           aws s3 ls "$S3_BUCKET"
+          echo "listing env"
+          env
 
   terraform-plan:
     needs:   aws-assume-role
@@ -64,8 +66,8 @@ jobs:
       - name: terraform-plan
         env:
             AWS_REGION:  ${{ env.AWS_REGION }}
-            AWS_ACCESS_KEY_ID: ${{ needs.aws-assume-role.outputs.aws-access-key-id }}
-            AWS_SECRET_ACCESS_KEY: ${{ needs.aws-assume-role.outputs.aws-secret-access-key }}
+            AWS_ACCESS_KEY_ID: ${{ needs.awsAssumeRole.outputs.aws-access-key-id }}
+            AWS_SECRET_ACCESS_KEY: ${{ needs.awsAssumeRole.outputs.aws-secret-access-key }}
             TEST: ${{ needs.aws-assume-role.outputs.test-output }}
         run: |
           echo "hello from terraform-plan"
