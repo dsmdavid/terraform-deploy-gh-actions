@@ -18,4 +18,7 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v4
         with:
-          ref: ref/heads/main
+          ref: main
+      - run: |
+          env | grep BRANCH
+          git checkout -b $BRANCH_NAME
