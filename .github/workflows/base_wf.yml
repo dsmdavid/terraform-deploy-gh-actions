@@ -50,6 +50,7 @@ jobs:
           aws s3 ls "$S3_BUCKET"
 
   terraform-plan:
+    needs:   aws-assume-role
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
