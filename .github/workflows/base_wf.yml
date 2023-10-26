@@ -12,6 +12,7 @@ env:
   
   AWS_REGION : "eu-west-1" #Change to reflect your Region
 
+
 # Permission can be added at job level or workflow level    
 permissions:
       id-token: write   # This is required for requesting the JWT
@@ -26,8 +27,14 @@ jobs:
       test-output: ${{ steps.sts.outputs.test }}
 
     steps:
-    #   - name: Git clone the repository
-    #     uses: actions/checkout@v3
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.7"
+
       - name: configure aws credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
@@ -50,26 +57,9 @@ jobs:
         run: |
           aws s3 ls "$S3_BUCKET"
           echo "listing env"
-  #         env
-
-  # terraform-plan:
-  #   needs:   awsAssumeRole
-  #   runs-on: ubuntu-latest
-  #   steps:
-      - name: Git clone the repository
-        uses: actions/checkout@v3
-
-      - name: set up terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: "1.5.7"
 
       - name: terraform-plan
-        # with:
-        #   AWS_ACCESS_KEY_ID: ${{ needs.awsAssumeRole.outputs.aws-access-key-id }}
-        #   AWS_SECRET_ACCESS_KEY: ${{ needs.awsAssumeRole.outputs.aws-secret-access-key }}
         run: |
           echo "hello from terraform-plan"
-          echo "$AWS_REGION $AWS_ACCESS_KEY_ID $TEST"
           env
           aws s3 ls "$S3_BUCKET"
