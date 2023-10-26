@@ -70,7 +70,7 @@ jobs:
           echo "hello from terraform-plan"
           terraform plan
       - name: terraform-apply        
-        env:
+        # env:
             # S3_BUCKET: ${{ secrets.S3_BUCKET }}
             # DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
             # DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
