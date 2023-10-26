@@ -31,8 +31,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       # Hello from AWS: WhoAmI
       - name: Sts GetCallerIdentity
+        run: |
+          aws sts get-caller-identity
+      - name: list items in bucket
         env:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
-          aws sts get-caller-identity
           aws s3 ls "$S3_BUCKET"
