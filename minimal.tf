@@ -7,12 +7,14 @@ terraform {
   }
   backend "s3" {
     encrypt        = true
-    bucket         = "dvd-bucket-terraform-state"
     dynamodb_table = "dvd-terraform-state-lock"
-    region         = "eu-west-1"
   }
 }
 
 provider "dbtcloud" {
 
+}
+
+resource "dbtcloud_project" "sample_project" {
+  name = "dvd_gh_terraform"
 }

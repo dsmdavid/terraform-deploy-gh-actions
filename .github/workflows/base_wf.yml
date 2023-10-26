@@ -20,44 +20,46 @@ permissions:
 jobs:
   awsAssumeRole:
     runs-on: ubuntu-latest
-    outputs:
-      aws-access-key-id: ${{ steps.sts.outputs.aws-access-key-id }}
-      aws-secret-access-key: ${{ steps.sts.outputs.aws-secret-access-key }}
-      aws-session-token: ${{ steps.sts.outputs.aws-session-token }}
-      test-output: ${{ steps.sts.outputs.test }}
-
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
-
-      - name: set up terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: "1.5.7"
-
       - name: configure aws credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::344768802373:role/dvd_github_action_terraform_state_manager
           #change to reflect your IAM role’s ARN
-          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          role-session-name: dvd_Github_action $GITHUB_REPO
           aws-region: ${{ env.AWS_REGION }}
           output-credentials: true
-      # Hello from AWS: WhoAmI
       - name: Sts GetCallerIdentity
         id: sts
         run: |
           aws sts get-caller-identity
-          echo "test=hello" >> "$GITHUB_OUTPUT"
-          echo "aws-access-key-id=$AWS_ACCESS_KEY_ID" >> "$GITHUB_OUTPUT"
-      - name: list items in bucket
+      # - name: list items in bucket
+      #   env:
+      #       S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      #   run: |
+      #     aws s3 ls "$S3_BUCKET"
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.7"
+      - name: init
         env:
-            S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          
         run: |
-          aws s3 ls "$S3_BUCKET"
-          echo "listing env"
-
+          echo listing envs
+          env
+          echo "**********"
+          echo "**********"
+          echo "**********"
+          terraform init \
+          -backend-config="bucket=${S3_BUCKET}" \
+          -backend-config="key=${GITHUB_REF}-${GITHUB_EVENT_NAME}" \
+          -backend-config="dynamodb_table=${DYNAMODB_TABLE}" \
+          -backend-config="region=${AWS_REGION}"
       - name: terraform-plan        
         env:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
@@ -65,5 +67,15 @@ jobs:
             DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
         run: |
           echo "hello from terraform-plan"
+          terraform plan
+
+ 
+      run:
+        # cat > backend.tf << EOF
+        # terraform {
+        # backend "s3" {
+        # organization = "$(secrets.TF_CLOUD_ORGANIZATION)"
+        # workspaces {
+        # name = "${secrets.TF_ CLOUD WORKSPACE)"
+        # EOF
           ls
-          
