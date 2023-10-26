@@ -51,7 +51,6 @@ jobs:
         run: |
           echo listing envs
           S3_BUCKET_NAME=$(echo | awk -v env_var="$S3_BUCKET" '{print substr(env_var, 6) }')
-          env
           echo "**********"
           echo "**********"
           echo "**********"
