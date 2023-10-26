@@ -27,6 +27,10 @@ jobs:
         with:
           ref: main
       - id: checkout
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORIGINAL_BRANCH_NAME: ${{ steps.inputs.original_branch_name }}
+          NEW_BRANCH_NAME: ${{ steps.inputs.new_branch_name }}
         run: |
           env 
           git checkout -b $NEW_BRANCH_NAME 
