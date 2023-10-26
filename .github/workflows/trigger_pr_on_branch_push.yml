@@ -20,5 +20,5 @@ jobs:
         with:
           ref: main
       - run: |
-          env | grep BRANCH
+          env 
           git checkout -b $BRANCH_NAME
