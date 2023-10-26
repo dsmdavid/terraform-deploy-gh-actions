@@ -50,12 +50,12 @@ jobs:
         run: |
           aws s3 ls "$S3_BUCKET"
           echo "listing env"
-          env
+  #         env
 
-  terraform-plan:
-    needs:   awsAssumeRole
-    runs-on: ubuntu-latest
-    steps:
+  # terraform-plan:
+  #   needs:   awsAssumeRole
+  #   runs-on: ubuntu-latest
+  #   steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
 
@@ -65,12 +65,9 @@ jobs:
           terraform_version: "1.5.7"
 
       - name: terraform-plan
-        with:
-          AWS_ACCESS_KEY_ID: ${{ needs.awsAssumeRole.outputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ needs.awsAssumeRole.outputs.aws-secret-access-key }}
-        env:
-            AWS_REGION:  ${{ env.AWS_REGION }}
-            TEST: ${{ needs.aws-assume-role.outputs.test-output }}
+        # with:
+        #   AWS_ACCESS_KEY_ID: ${{ needs.awsAssumeRole.outputs.aws-access-key-id }}
+        #   AWS_SECRET_ACCESS_KEY: ${{ needs.awsAssumeRole.outputs.aws-secret-access-key }}
         run: |
           echo "hello from terraform-plan"
           echo "$AWS_REGION $AWS_ACCESS_KEY_ID $TEST"
