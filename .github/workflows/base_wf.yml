@@ -52,7 +52,7 @@ jobs:
           env
 
   terraform-plan:
-    needs:   aws-assume-role
+    needs:   awsAssumeRole
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
