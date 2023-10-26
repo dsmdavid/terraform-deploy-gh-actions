@@ -9,18 +9,54 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
+    outputs:
+      ORIGINAL_BRANCH_NAME: ${{ steps.inputs.original_branch_name }}
+      NEW_BRANCH_NAME: ${{ steps.inputs.new_branch_name }}
     steps:
       - name: validate inputs
+        id: inputs
         run: |
           [[ "$GITHUB_REF" =~ ^refs\/heads\/pre[a-z]+__[a-zA-Z0-9\_]+__[a-zA-Z0-9\_]+$ ]] && echo "branch name matches validation" || (echo "Invalid branch name, must be `prerelease__PROJECT_NAME__ENVIRONMENT`" && exit 1)
+          NEW_BRANCH_NAME=$(echo $GITHUB_REF | sed -E "s/refs\/heads\/pre([a-z]+__[a-zA-Z0-9\_]+__[a-zA-Z0-9\_]+)/\1/" )
+          ORIGINAL_BRANCH_NAME=$(echo $GITHUB_REF | sed -E "s/refs\/heads\/(pre[a-z]+__[a-zA-Z0-9\_]+__[a-zA-Z0-9\_]+)/\1/" )
+          echo "new_branch_name=$NEW_BRANCH_NAME" >> "$GITHUB_OUTPUT"
+          echo "original_branch_name=$ORIGINAL_BRANCH_NAME"  >> "$GITHUB_OUTPUT"
 
       - name: Git clone the repository
         uses: actions/checkout@v4
         with:
           ref: main
-      - run: |
-          BRANCH_NAME=$(echo $GITHUB_REF | sed -E "s/refs\/heads\/pre([a-z]+__[a-zA-Z0-9\_]+__[a-zA-Z0-9\_]+)/\1/" )
+      - id: checkout
+        run: |
           env 
-          git checkout -b $BRANCH_NAME 
-          git push -u origin $BRANCH_NAME 
-          echo "will this fail?"
+          git checkout -b $NEW_BRANCH_NAME 
+          git push -u origin $NEW_BRANCH_NAME 
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORIGINAL_BRANCH_NAME: ${{ steps.inputs.original_branch_name }}
+          NEW_BRANCH_NAME: ${{ steps.inputs.new_branch_name }}
+        run: |
+          gh pr create --title "Create infra for ${NEW_BRANCH_NAME}" \
+          --base $NEW_BRANCH_NAME --head $ORIGINAL_BRANCH_NAME \
+          --fill-first \
+          --reviewer dsmdavid
+
+      # - name: create PR
+      #   uses: devops-infra/action-pull-request@v0.5.5
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     source_branch: development
+      #     target_branch: master
+      #     title: My pull request
+      #     template: .github/PULL_REQUEST_TEMPLATE.md
+      #     body: "**Automated pull request**"
+      #     reviewer: octocat
+      #     assignee: octocat
+      #     label: enhancement
+      #     milestone: My milestone
+      #     draft: true
+      #     old_string: "<!-- Add your description here -->"
+      #     new_string: "** Automatic pull request**"
+      #     get_diff: true
+      #     ignore_users: "dependabot"
+      #     allow_no_diff: false
