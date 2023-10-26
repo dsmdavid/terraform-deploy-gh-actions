@@ -17,18 +17,24 @@ permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
 jobs:
-  AssumeRoleAndCallIdentity:
+  aws-assume-role:
     runs-on: ubuntu-latest
+    outputs:
+      aws-access-key-id: ${{ steps.creds.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ steps.creds.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ steps.creds.outputs.aws-session-token }}
     steps:
-      - name: Git clone the repository
-        uses: actions/checkout@v3
+    #   - name: Git clone the repository
+    #     uses: actions/checkout@v3
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::344768802373:role/dvd_github_action_terraform_state_manager
           #change to reflect your IAM role’s ARN
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
+          output-credentials: true
       # Hello from AWS: WhoAmI
       - name: Sts GetCallerIdentity
         run: |
@@ -37,4 +43,24 @@ jobs:
         env:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
+          aws s3 ls "$S3_BUCKET"
+
+  terraform-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.7"
+
+      - name: terraform-plan
+        env:
+            AWS_REGION:  ${{ env.AWS_REGION }}
+            AWS_ACCESS_KEY_ID: ${{ needs.aws-assume-role.outputs.aws-access-key-id }}
+            AWS_SECRET_ACCESS_KEY: ${{ needs.aws-assume-role.outputs.aws-secret-access-key }}
+        run: |
+          echo "hello from terraform-plan"
           aws s3 ls "$S3_BUCKET"
