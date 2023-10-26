@@ -23,6 +23,8 @@ jobs:
       aws-access-key-id: ${{ steps.creds.outputs.aws-access-key-id }}
       aws-secret-access-key: ${{ steps.creds.outputs.aws-secret-access-key }}
       aws-session-token: ${{ steps.creds.outputs.aws-session-token }}
+      test-output: ${{ steps.sts.outputs.test }}
+
     steps:
     #   - name: Git clone the repository
     #     uses: actions/checkout@v3
@@ -37,8 +39,10 @@ jobs:
           output-credentials: true
       # Hello from AWS: WhoAmI
       - name: Sts GetCallerIdentity
+        id: sts
         run: |
           aws sts get-caller-identity
+          echo "test=hello" >> "$GITHUB_OUTPUT"
       - name: list items in bucket
         env:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
@@ -61,6 +65,7 @@ jobs:
             AWS_REGION:  ${{ env.AWS_REGION }}
             AWS_ACCESS_KEY_ID: ${{ needs.aws-assume-role.outputs.aws-access-key-id }}
             AWS_SECRET_ACCESS_KEY: ${{ needs.aws-assume-role.outputs.aws-secret-access-key }}
+            TEST: ${{ needs.aws-assume-role.outputs.test-output }}
         run: |
           echo "hello from terraform-plan"
           aws s3 ls "$S3_BUCKET"
