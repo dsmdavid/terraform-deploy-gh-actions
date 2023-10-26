@@ -29,7 +29,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::344768802373:role/dvd_github_action_terraform_state_manager
           #change to reflect your IAM role’s ARN
-          role-session-name: dvd_Github_action $GITHUB_REPO
+          role-session-name: dvd_Github_action
           aws-region: ${{ env.AWS_REGION }}
           output-credentials: true
       - name: Sts GetCallerIdentity
