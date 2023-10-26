@@ -68,4 +68,5 @@ jobs:
             TEST: ${{ needs.aws-assume-role.outputs.test-output }}
         run: |
           echo "hello from terraform-plan"
+          echo "$AWS_REGION $AWS_ACCESS_KEY_ID $TEST"
           aws s3 ls "$S3_BUCKET"
