@@ -51,15 +51,15 @@ jobs:
           
         run: |
           echo listing envs
-          env
+          S3_BUCKET_NAME=$(echo | awk -v env_var="$S3_BUCKET" '{print substr(env_var, 6) }')
           echo "**********"
           echo "**********"
           echo "**********"
           terraform init \
-          -backend-config="bucket=$S3_BUCKET" \
+          -backend-config="bucket=${S3_BUCKET_NAME}" \
           -backend-config="key=${GITHUB_REF}-${GITHUB_EVENT_NAME}" \
-          -backend-config="dynamodb_table=$DYNAMODB_TABLE" \
-          -backend-config="region=$AWS_REGION"
+          -backend-config="dynamodb_table=${DYNAMODB_TABLE}" \
+          -backend-config="region=${AWS_REGION}"
       - name: terraform-plan        
         env:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
