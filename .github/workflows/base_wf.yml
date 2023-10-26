@@ -58,7 +58,9 @@ jobs:
           aws s3 ls "$S3_BUCKET"
           echo "listing env"
 
-      - name: terraform-plan
+      - name: terraform-plan        
+        env:
+            S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
           echo "hello from terraform-plan"
           env
