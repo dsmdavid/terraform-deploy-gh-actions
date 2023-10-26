@@ -21,4 +21,5 @@ jobs:
       - run: |
           BRANCH_NAME=$(echo $GITHUB_REF | sed -E "s/refs\/heads\/pre([a-z]+__[a-zA-Z0-9\_]+__[a-zA-Z0-9\_]+)/\1/" )
           env 
-          git checkout -b $BRANCH_NAME
+          git checkout -b $BRANCH_NAME 
+          git push -u origin $BRANCH_NAME 
