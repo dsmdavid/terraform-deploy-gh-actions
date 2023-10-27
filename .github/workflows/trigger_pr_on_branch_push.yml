@@ -37,19 +37,21 @@ jobs:
           echo "testing ou"
           git checkout -b $NEW_BRANCH_NAME
           git push -u origin $NEW_BRANCH_NAME
-      - env:
+      - name: create PR
+        id: create-pr
+        continue-on-error: true
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
-          echo "gh pr create --title Create infra for ${NEW_BRANCH_NAME} \
-          --base $NEW_BRANCH_NAME --head $ORIGINAL_BRANCH_NAME \
-          --fill-first \
-          --reviewer dsmdavid"
-          gh pr create --title "Create infra for ${NEW_BRANCH_NAME}" \
+          outcome=$(gh pr create --title "Create infra for ${NEW_BRANCH_NAME}" \
           --base $NEW_BRANCH_NAME --head $ORIGINAL_BRANCH_NAME \
           --body "Sample PR" \
-          --reviewer dsmdavid
+          --reviewer dsmdavid 2>&1 1>/dev/null)
+          echo $outcome
+
+          
       # - name: create PR
       #   uses: devops-infra/action-pull-request@v0.5.5
       #   with:
