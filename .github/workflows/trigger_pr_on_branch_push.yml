@@ -29,12 +29,12 @@ jobs:
           ref: main
           fetch-depth: 0
       - id: checkout
+        name: create new branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
-          echo "testing ou"
           git checkout -b $NEW_BRANCH_NAME
           git push -u origin $NEW_BRANCH_NAME
       - name: create PR

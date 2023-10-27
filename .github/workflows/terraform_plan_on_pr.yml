@@ -73,6 +73,20 @@ jobs:
         with:
           name: ${{ github.event.number }}-tf-plan
           path: tfplan
+      - name: Comment Plan
+        id: comment-plan
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          body: |
+            Terraform Plan:
+  
+            ```
+            ${{ steps.tfplan.outputs.stdout }}
+            ```
+  
+            Plan saved to GH artifacts.
       - name: Add comment to the PR
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
