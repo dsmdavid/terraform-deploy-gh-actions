@@ -62,12 +62,10 @@ jobs:
         run: |
           echo "hello from terraform-plan"
           terraform plan -out=tfplan
-      # - name: create artifact
-      #   env:
-      #     PR_NUMBER: ${{ github.event.number }}
-      #     PLAN: "terraform\n${{ steps.tfplan.outputs.stdout }}"
-      #   run: |
-      #     echo $PLAN >> tfplan
+      - name: terraform-show
+        id: tfshow
+        run: terraform show -no-color tfplan
+
       - name: Save Artifact
         id: save-artifact
         uses: actions/upload-artifact@v3
@@ -92,7 +90,7 @@ jobs:
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "terraform\n${{ steps.tfplan.outputs.stdout }}"
+          PLAN: "terraform\n${{ steps.tfshow.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
