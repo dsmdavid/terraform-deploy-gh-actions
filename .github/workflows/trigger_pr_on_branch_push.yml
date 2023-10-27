@@ -70,7 +70,7 @@ jobs:
               echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
           echo "$prs"
-      - name: create PR
+      - name: create PR if not exists
         if: '!steps.checkpr.outputs.skip'
         id: create-pr
         continue-on-error: true
