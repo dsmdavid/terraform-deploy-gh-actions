@@ -27,6 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
       - id: checkout
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,11 +42,14 @@ jobs:
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
+          echo "gh pr create --title Create infra for ${NEW_BRANCH_NAME} \
+          --base $NEW_BRANCH_NAME --head $ORIGINAL_BRANCH_NAME \
+          --fill-first \
+          --reviewer dsmdavid"
           gh pr create --title "Create infra for ${NEW_BRANCH_NAME}" \
           --base $NEW_BRANCH_NAME --head $ORIGINAL_BRANCH_NAME \
           --fill-first \
           --reviewer dsmdavid
-
       # - name: create PR
       #   uses: devops-infra/action-pull-request@v0.5.5
       #   with:
