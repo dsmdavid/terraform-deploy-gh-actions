@@ -1,9 +1,7 @@
 name: Trigger TF on PR
 
-# Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on:
-  # push:
-  #   branches: [ main ]
+
   pull_request:
     branches: 
       - 'release**'
@@ -12,7 +10,6 @@ env:
   AWS_REGION : "eu-west-1" #Change to reflect your Region
 
 
-# Permission can be added at job level or workflow level    
 permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
@@ -36,11 +33,6 @@ jobs:
         id: sts
         run: |
           aws sts get-caller-identity
-      # - name: list items in bucket
-      #   env:
-      #       S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      #   run: |
-      #     aws s3 ls "$S3_BUCKET"
       - name: set up terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -48,7 +40,6 @@ jobs:
       - name: init
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          
         run: |
           echo listing envs
           S3_BUCKET_NAME=$(echo | awk -v env_var="$S3_BUCKET" '{print substr(env_var, 6) }')
@@ -60,7 +51,8 @@ jobs:
           -backend-config="key=${GITHUB_REF}-${GITHUB_EVENT_NAME}" \
           -backend-config="dynamodb_table=${DYNAMODB_TABLE}" \
           -backend-config="region=${AWS_REGION}"
-      - name: terraform-plan        
+      - name: terraform-plan
+        id: tfplan        
         env:
             S3_BUCKET: ${{ secrets.S3_BUCKET }}
             DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
@@ -68,15 +60,28 @@ jobs:
         run: |
           echo "hello from terraform-plan"
           terraform plan
-      - name: terraform-apply        
+      - name: create artifact
         env:
-            S3_BUCKET: ${{ secrets.S3_BUCKET }}
-            DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
-            DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.number }}
+          PLAN: "terraform\n${{ steps.tfplan.outputs.stdout }}"
         run: |
-          echo "hello from terraform-plan"
-          terraform apply -auto-approve
-          echo "%%%%%%%"
-          echo "SUCCESS"
-          echo "%%%%%%%"
-          terraform destroy -auto-approve
+          echo $PLAN >> tfplan
+      - name: Save Artifact
+        id: save-artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.number }}-tf-plan
+          path: tfplan
+
+
+      # - name: terraform-apply        
+      #   env:
+      #       S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      #       DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
+      #       DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+      #   run: |
+      #     echo "hello from terraform-plan"
+      #     terraform apply -auto-approve
+      #     echo "%%%%%%%"
+      #     echo "SUCCESS"
+      #     echo "%%%%%%%"
