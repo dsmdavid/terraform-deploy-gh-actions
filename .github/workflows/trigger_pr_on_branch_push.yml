@@ -40,8 +40,9 @@ jobs:
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
-          git checkout -b $NEW_BRANCH_NAME
-          git push -u origin $NEW_BRANCH_NAME
+          git show-ref --verify --quiet refs/heads/$NEW_BRANCH_NAME && BRANCH_EXISTS="yes" || BRANCH_EXISTS="no" && echo "Branch $NEW_BRANCH_NAME $BRANCH_EXISTS exists"
+          [[ "$BRANCH_EXISTS" = yes ]] && (git checkout -b $NEW_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME)
+          [[ "$BRANCH_EXISTS" = no ]] && (git checkout $NEW_BRANCH_NAME &&  git merge $ORIGINAL_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME)
       - name: create PR
         id: create-pr
         continue-on-error: true
