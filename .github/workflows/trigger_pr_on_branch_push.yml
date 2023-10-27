@@ -53,9 +53,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
+
         run: |
           gh pr list
+          echo "$GITHUB_REPOSITORY"
           echo "logic"
+          
           prs=$(gh pr list \
               --repo "$GITHUB_REPOSITORY" \
               --json baseRefName,headRefName \
