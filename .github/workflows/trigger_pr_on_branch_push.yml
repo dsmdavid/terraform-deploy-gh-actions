@@ -48,7 +48,7 @@ jobs:
           --reviewer dsmdavid"
           gh pr create --title "Create infra for ${NEW_BRANCH_NAME}" \
           --base $NEW_BRANCH_NAME --head $ORIGINAL_BRANCH_NAME \
-          --fill-first \
+          --body "Sample PR"
           --reviewer dsmdavid
       # - name: create PR
       #   uses: devops-infra/action-pull-request@v0.5.5
