@@ -28,6 +28,11 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+      # checkout:
+        # if it is the first time this runs, the target branch (NEW_BRANCH_NAME) 
+        # will not exist, and then it will be created from the ORIGINAL_BRANCH_NAME. 
+        # Subsequent runs will fail when "checkout -b" is used, further, we want to merge new changes
+        # in those cases.
       - id: checkout
         name: create new branch
         env:

@@ -18,4 +18,4 @@ Approaches:
    1. Create an issue that has the config as a yaml block.
    2. Upon appropriate labelling: GH action to Plan and comment the issue.
    3. Upon review and label change, GH action to Apply the configuration.
-   4. Upon adding Destroy label, GH action to destroy the configuration.
+   4. Upon adding Destroy LABEL, GH action to destroy the configuration.
