@@ -57,6 +57,8 @@ jobs:
         run: |
           gh pr list
           echo "$GITHUB_REPOSITORY"
+          echo "json"
+          gh pr list --json baseRefName,headRefName 
           echo "logic"
           
           prs=$(gh pr list \
