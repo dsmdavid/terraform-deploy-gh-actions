@@ -59,13 +59,13 @@ jobs:
             DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
         run: |
           echo "hello from terraform-plan"
-          terraform plan
-      - name: create artifact
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-          PLAN: "terraform\n${{ steps.tfplan.outputs.stdout }}"
-        run: |
-          echo $PLAN >> tfplan
+          terraform plan -out=tfplan
+      # - name: create artifact
+      #   env:
+      #     PR_NUMBER: ${{ github.event.number }}
+      #     PLAN: "terraform\n${{ steps.tfplan.outputs.stdout }}"
+      #   run: |
+      #     echo $PLAN >> tfplan
       - name: Save Artifact
         id: save-artifact
         uses: actions/upload-artifact@v3
