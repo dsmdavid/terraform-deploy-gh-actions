@@ -30,12 +30,10 @@ jobs:
       - id: checkout
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORIGINAL_BRANCH_NAME: ${{ steps.inputs.original_branch_name }}
-          NEW_BRANCH_NAME: ${{ steps.inputs.new_branch_name }}
         run: |
           env 
-          git checkout -b $NEW_BRANCH_NAME 
-          git push -u origin $NEW_BRANCH_NAME 
+          git checkout -b ${{ steps.inputs.original_branch_name }} 
+          git push -u origin ${{ steps.inputs.new_branch_name }}
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.original_branch_name }}
