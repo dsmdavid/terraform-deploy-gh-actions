@@ -54,6 +54,8 @@ jobs:
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
+          gh pr list
+          echo "logic"
           prs=$(gh pr list \
               --repo "$GITHUB_REPOSITORY" \
               --json baseRefName,headRefName \
@@ -64,6 +66,7 @@ jobs:
           if ((prs > 0)); then
               echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
+          echo "$prs"
       - name: create PR
         if: '!steps.checkpr.outputs.skip'
         id: create-pr
