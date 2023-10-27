@@ -47,7 +47,25 @@ jobs:
           echo "Branch exitst $BRANCH_EXISTS"
           [[ "$BRANCH_EXISTS" = 0 ]] && (echo "Branch $NEW_BRANCH_NAME does not exist and will be created" && git checkout -b $NEW_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME)
           [[ "$BRANCH_EXISTS" = 1 ]] && (echo "Branch $NEW_BRANCH_NAME already exists and will be merged" && git checkout $NEW_BRANCH_NAME &&  git merge origin/$ORIGINAL_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME)
+      - name: Check if PR exists
+        id: checkpr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
+          NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
+        run: |
+          prs=$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --json baseRefName,headRefName \
+              --jq '
+                  map(select(.baseRefName == "$NEW_BRANCH_NAME" and .headRefName == "$ORIGINAL_BRANCH_NAME"))
+                  | length
+              ')
+          if ((prs > 0)); then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: create PR
+        if: '!steps.checkpr.outputs.skip'
         id: create-pr
         continue-on-error: true
         env:
