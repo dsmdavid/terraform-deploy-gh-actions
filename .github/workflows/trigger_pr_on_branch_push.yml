@@ -45,8 +45,8 @@ jobs:
           # git show-ref --verify --quiet refs/heads/$NEW_BRANCH_NAME && BRANCH_EXISTS="yes" || BRANCH_EXISTS="no" && echo "Branch $NEW_BRANCH_NAME $BRANCH_EXISTS exists"
           BRANCH_EXISTS=$(git ls-remote --heads origin refs/heads/"$NEW_BRANCH_NAME" | wc -l)
           echo "Branch exitst $BRANCH_EXISTS"
-          [[ "$BRANCH_EXISTS" = 0 ]] && (echo "Branch $NEW_BRANCH_NAME does not exist and will be created" && git checkout -b $NEW_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME)
-          [[ "$BRANCH_EXISTS" = 1 ]] && (echo "Branch $NEW_BRANCH_NAME already exists and will be merged" && git checkout $NEW_BRANCH_NAME &&  git merge origin/$ORIGINAL_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME)
+          [[ "$BRANCH_EXISTS" = 0 ]] && (echo "Branch $NEW_BRANCH_NAME does not exist and will be created" && git checkout -b $NEW_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME) || echo "pass"
+          [[ "$BRANCH_EXISTS" = 1 ]] && (echo "Branch $NEW_BRANCH_NAME already exists and will be merged" && git checkout $NEW_BRANCH_NAME &&  git merge origin/$ORIGINAL_BRANCH_NAME && git push -u origin $NEW_BRANCH_NAME) || echo "pass"
       - name: Check if PR exists
         id: checkpr
         env:
