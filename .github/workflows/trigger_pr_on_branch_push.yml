@@ -10,8 +10,8 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     outputs:
-      ORIGINAL_BRANCH_NAME: ${{ steps.inputs.original_branch_name }}
-      NEW_BRANCH_NAME: ${{ steps.inputs.new_branch_name }}
+      ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
+      NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
     steps:
       - name: validate inputs
         id: inputs
@@ -30,14 +30,16 @@ jobs:
       - id: checkout
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
+          NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
-          env 
-          git checkout -b ${{ steps.inputs.original_branch_name }} 
-          git push -u origin ${{ steps.inputs.new_branch_name }}
+          echo "testing ou"
+          git checkout -b $NEW_BRANCH_NAME
+          git push -u origin $NEW_BRANCH_NAME
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORIGINAL_BRANCH_NAME: ${{ steps.inputs.original_branch_name }}
-          NEW_BRANCH_NAME: ${{ steps.inputs.new_branch_name }}
+          ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
+          NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
           gh pr create --title "Create infra for ${NEW_BRANCH_NAME}" \
           --base $NEW_BRANCH_NAME --head $ORIGINAL_BRANCH_NAME \
