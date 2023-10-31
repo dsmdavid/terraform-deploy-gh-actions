@@ -11,6 +11,8 @@ jobs:
         steps:
             - run: |
                 echo "This PR was approved"
+                env | grep github
+                env | grep GITHUB
                 echo  ${{ github.event.number }}
 
             - name: Git clone the repository
