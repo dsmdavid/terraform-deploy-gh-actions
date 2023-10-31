@@ -55,7 +55,7 @@ jobs:
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
 
         run: |
-          gh pr list
+          echo $(gh pr list)
           echo "$GITHUB_REPOSITORY"
           echo "json"
           gh pr list --json baseRefName,headRefName 
