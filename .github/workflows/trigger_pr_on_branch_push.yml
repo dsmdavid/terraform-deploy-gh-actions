@@ -73,12 +73,24 @@ jobs:
               echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
           echo "$prs"
+      - name: Generate a token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Use the token
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          gh api octocat
       - name: create PR if not exists
         if: '!steps.checkpr.outputs.skip'
         id: create-pr
         continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
           NEW_BRANCH_NAME: ${{ steps.inputs.outputs.new_branch_name }}
         run: |
