@@ -16,7 +16,7 @@ permissions: write-all
       # issues: write  
 
 jobs:
-  awsAssumeRole:
+  create-plan:
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
@@ -43,7 +43,6 @@ jobs:
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
-          echo listing envs
           S3_BUCKET_NAME=$(echo | awk -v env_var="$S3_BUCKET" '{print substr(env_var, 6) }')
           echo "**********"
           echo "**********"
@@ -100,15 +99,3 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-
-      # - name: terraform-apply        
-      #   env:
-      #       S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      #       DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
-      #       DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
-      #   run: |
-      #     echo "hello from terraform-plan"
-      #     terraform apply -auto-approve
-      #     echo "%%%%%%%"
-      #     echo "SUCCESS"
-      #     echo "%%%%%%%"
