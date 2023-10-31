@@ -5,9 +5,10 @@ on:
     branches:
       - 'prerelease**'
 
+permissions: write-all
 
 jobs:
-  job1:
+  createpr:
     runs-on: ubuntu-latest
     outputs:
       ORIGINAL_BRANCH_NAME: ${{ steps.inputs.outputs.original_branch_name }}
