@@ -9,4 +9,59 @@ jobs:
         if: github.event.review.state == 'APPROVED'
         runs-on: ubuntu-latest
         steps:
-            - run: echo "This PR was approved"
+            - run: |
+                echo "This PR was approved"
+                echo  ${{ github.event.number }}
+
+            - name: Git clone the repository
+              uses: actions/checkout@v4
+            - name: configure aws credentials
+              id: creds
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: arn:aws:iam::344768802373:role/dvd_github_action_terraform_state_manager
+                #change to reflect your IAM role’s ARN
+                role-session-name: dvd_Github_action
+                aws-region: ${{ env.AWS_REGION }}
+                output-credentials: true
+            - name: Sts GetCallerIdentity
+              id: sts
+              run: |
+                aws sts get-caller-identity
+            - name: set up terraform
+              uses: hashicorp/setup-terraform@v2
+              with:
+                terraform_version: "1.5.7"
+            - name: init
+              id: tfinit
+              env:
+                S3_BUCKET: ${{ secrets.S3_BUCKET }}
+              run: |
+                  S3_BUCKET_NAME=$(echo | awk -v env_var="$S3_BUCKET" '{print substr(env_var, 6) }')
+                  echo "**********"
+                  echo "**********"
+                  echo "**********"
+                  terraform init \
+                  -backend-config="bucket=${S3_BUCKET_NAME}" \
+                  -backend-config="key=${GITHUB_REF}-${GITHUB_EVENT_NAME}" \
+                  -backend-config="dynamodb_table=${DYNAMODB_TABLE}" \
+                  -backend-config="region=${AWS_REGION}"
+            - name: Download Plan
+              id: download-plan
+              uses: dawidd6/action-download-artifact@v2
+              with:
+                github_token: ${{ inputs.github_token }}
+                workflow: terraform_plan_on_pr.yaml
+                pr:  ${{ github.event.number }}
+                name: ${{ github.event.number }}-tf-plan
+                path: ''
+      #   env:
+      #       S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      #       DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
+      #       DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+      #   run: |
+      #     echo "hello from terraform-plan"
+      #     terraform apply -auto-approve
+      #     echo "%%%%%%%"
+      #     echo "SUCCESS"
+      #     echo "%%%%%%%"
